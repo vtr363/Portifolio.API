@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Portifolio.API;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +20,21 @@ app.UseCors(p => p
     .AllowAnyMethod()
 );
 
-app.MapGet("/", (Contact contact) => 
+app.MapPost("/contacts", async(PortifolioContext context, Contact contact) => 
 {
-    
+    await context.Contacts.AddAsync(contact);
+    await context.SaveChangesAsync();
+
+    return Results.Ok();
 }).WithOpenApi();
+
+app.MapGet("/contacts", async(PortifolioContext context) =>
+{
+    var contacts = await context.Contacts.ToListAsync();
+
+    return Results.Ok(contacts);
+})
+.WithOpenApi();
 
 app.Run();
 
